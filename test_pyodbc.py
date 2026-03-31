@@ -114,3 +114,48 @@ if not df.empty:
     print(df) # Prints the DataFrame result
 else:
     print("\nNo matching records found.")
+
+
+''' -----------/\/\/\/\/\----------- '''
+
+#--- **** NEW SCRIPT - INSERT NEW DATA TO SQL DATABASE *****
+
+# Step 1: create table in SSMS using below:
+
+'''CREATE TABLE emp (
+    firstname VARCHAR(20),
+    lastname VARCHAR(20)
+);'''
+
+# Step 2: The below inserts new data rows into the a SQL Database table emp.
+# the 'try-except' block catches & handle errors, preventing script crashes,
+# by allowing alternative actions when exceptions occur!
+
+try:
+    conn = pyodbc.connect(connectionString)
+    cursor = conn.cursor()
+
+    cursor.executemany(
+        "INSERT INTO emp VALUES (?, ?)",
+        [
+            ('x-men III', '2012'),
+            ('avengers', '2019')
+        ]
+    )
+# Commit the transaction
+    conn.commit()
+    print("Records inserted successfully!")
+
+ # Handle Database errors
+except pyodbc.DatabaseError as db_err:
+    print(f"Database error occurred: {db_err}")
+    conn.rollback()  
+
+ # Handle Python/script errors
+except Exception as e:
+    print(f"An error occurred: {e}")
+
+ # Close the connection
+finally:
+    cursor.close()
+    conn.close()
